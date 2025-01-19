@@ -1,17 +1,14 @@
-dataset_type = "ThumosPaddingDataset"
-annotation_path = "data/thumos-14/annotations/thumos_14_anno.json"
-class_map = "data/thumos-14/annotations/category_idx.txt"
-data_path = "data/thumos-14/features/i3d_actionformer_stride4_thumos/"
-block_list = data_path + "missing_files.txt"
+annotation_path = "data/ucf-crime-small/annotations/ucf_crime_anno.json"
+class_map = "data/ucf-crime-small/annotations/category_idx.txt"
+data_path = "data/ucf-crime-small/features/th14_vit_g_16_4/"
+# block_list = data_path + "missing_files.txt"
+block_list = None
 
-# data_path = "data/thumos-14/features/videomae-base_16x4x1_img224_stride4_len16_interval1_thumos"
-# block_list = []
-
-trunc_len = 2304
+window_size = 2304
 
 dataset = dict(
     train=dict(
-        type=dataset_type,
+        type="ThumosPaddingDataset",
         ann_file=annotation_path,
         subset_name="training",
         block_list=block_list,
@@ -21,17 +18,17 @@ dataset = dict(
         # thumos dataloader setting
         feature_stride=4,
         sample_stride=1,  # 1x4=4
-        offset_frames=8,
+        offset_frames=15,
         pipeline=[
             dict(type="LoadFeats", feat_format="npy"),
             dict(type="ConvertToTensor", keys=["feats", "gt_segments", "gt_labels"]),
-            dict(type="RandomTrunc", trunc_len=trunc_len, trunc_thresh=0.5, crop_ratio=[0.9, 1.0]),
+            dict(type="RandomTrunc", trunc_len=window_size, trunc_thresh=0.75, crop_ratio=[0.9, 1.0]),
             dict(type="Rearrange", keys=["feats"], ops="t c -> c t"),
             dict(type="Collect", inputs="feats", keys=["masks", "gt_segments", "gt_labels"]),
         ],
     ),
     val=dict(
-        type=dataset_type,
+        type="ThumosSlidingDataset",
         ann_file=annotation_path,
         subset_name="validation",
         block_list=block_list,
@@ -41,16 +38,19 @@ dataset = dict(
         # thumos dataloader setting
         feature_stride=4,
         sample_stride=1,  # 1x4=4
-        offset_frames=8,
+        window_size=window_size,
+        offset_frames=15,
+        window_overlap_ratio=0.25,
         pipeline=[
             dict(type="LoadFeats", feat_format="npy"),
             dict(type="ConvertToTensor", keys=["feats", "gt_segments", "gt_labels"]),
+            dict(type="SlidingWindowTrunc", with_mask=True),
             dict(type="Rearrange", keys=["feats"], ops="t c -> c t"),
             dict(type="Collect", inputs="feats", keys=["masks", "gt_segments", "gt_labels"]),
         ],
     ),
     test=dict(
-        type=dataset_type,
+        type="ThumosSlidingDataset",
         ann_file=annotation_path,
         subset_name="validation",
         block_list=block_list,
@@ -61,10 +61,13 @@ dataset = dict(
         # thumos dataloader setting
         feature_stride=4,
         sample_stride=1,  # 1x4=4
-        offset_frames=8,
+        window_size=window_size,
+        offset_frames=15,
+        window_overlap_ratio=0.5,
         pipeline=[
             dict(type="LoadFeats", feat_format="npy"),
             dict(type="ConvertToTensor", keys=["feats"]),
+            dict(type="SlidingWindowTrunc", with_mask=True),
             dict(type="Rearrange", keys=["feats"], ops="t c -> c t"),
             dict(type="Collect", inputs="feats", keys=["masks"]),
         ],

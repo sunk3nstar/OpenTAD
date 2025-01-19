@@ -64,7 +64,7 @@ inference = dict(load_from_raw_predictions=False, save_raw_prediction=False)
 post_processing = dict(
     nms=dict(
         use_soft_nms=True,
-        sigma=0.5,
+        sigma=0.7,
         max_seg_num=2000,
         min_score=0.001,
         multiclass=True,

@@ -101,6 +101,7 @@ class SingleStageDetector(BaseDetector):
         pre_nms_thresh = getattr(post_cfg, "pre_nms_thresh", 0.001)
         pre_nms_topk = getattr(post_cfg, "pre_nms_topk", 2000)
         num_classes = rpn_scores[0].shape[-1]
+        print(num_classes)
 
         results = {}
         for i in range(len(metas)):  # processing each video
