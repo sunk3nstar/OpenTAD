@@ -1,3 +1,16 @@
+# CausalTAD for UCF-Crime
+
+This repository contains the full OpenTAD toolbox and configs for CausalTAD to work with UCF-Crime dataset. 
+
+Our method is extracting features from tailored dataset with [VideoMAE](https://github.com/OpenGVLab/VideoMAEv2) and training with CausalTAD model. The training command is
+'''
+  torchrun --nnodes=1 --nproc_per_node=1 --rdzv_backend=c10d --rdzv_endpoint=localhost:0 tools/train.py configs/causaltad/ucf_crime_videomae.py
+'''
+
+We achieved a highest average mAP of 32.26%.
+
+The following contents are inherited from [the Original OpenTAD repo](https://github.com/sming256/OpenTAD/issues).
+
 # OpenTAD: An Open-Source Temporal Action Detection Toolbox.
 
 <p align="left">
